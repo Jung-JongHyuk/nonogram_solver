@@ -26,6 +26,7 @@ No external library was used in this project except STL. So there is no prerequs
     ./solver puzzle.txt
     ~~~
 5. program will solves puzzle and show result to console
+    ![running](https://user-images.githubusercontent.com/66899806/135102274-509833c1-341b-45fc-be5d-4a5410640e71.gif)
 
 # Reference
 heuristic nonogram solving algorithms in this project are implemented by referencing below paper  
