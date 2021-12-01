@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include <thread>
+#include <mutex>
 #include "../data_structure/Board.hpp"
 #include "../data_structure/ConfirmedDotData.hpp"
 #include "../data_structure/BlockRangeData.hpp"
@@ -24,7 +25,7 @@ class AbsurdityTechnique
 		bool check_isAssumptionValid(pair<int,int> assumptionIndex, Board& board, ConfirmedDotData& confirmedDotData, BlockRangeData& blockRangeData, HeuristicTechnique& heuristicTechnique);
 		bool check_isAssumptionValid(int assumptionRowIndex, int assumptionColStartIndex, int assumptionColEndIndex, Board& board, ConfirmedDotData& confirmedDotData, BlockRangeData& blockRangeData, HeuristicTechnique& heuristicTechnique);
 	
-        friend void absurdityCheckWorker(AbsurdityTechnique* delegate, pair<int,int> index, Board& board, ConfirmedDotData& confirmedDotData, BlockRangeData& blockRangeData, HeuristicTechnique& heuristicTechnique);
+        friend void absurdityCheckWorker(AbsurdityTechnique* delegate, pair<int,int> index, Board& board, ConfirmedDotData& confirmedDotData, BlockRangeData& blockRangeData, HeuristicTechnique& heuristicTechnique, mutex& confirmedDotDataLock);
 		int rowSize, colSize;
 		vector<pair<pair<int,int>,int>> techniqueAdoptionPriorityArray; // first : index pair, second :num of adjacent confirmeddot
 };
@@ -39,7 +40,7 @@ AbsurdityTechnique::AbsurdityTechnique(int rowSize, int colSize)
 	this->colSize = colSize;
 }
 
-void absurdityCheckWorker(AbsurdityTechnique* delegate, pair<int,int> index, Board& board, ConfirmedDotData& confirmedDotData, BlockRangeData& blockRangeData, HeuristicTechnique& heuristicTechnique)
+void absurdityCheckWorker(AbsurdityTechnique* delegate, pair<int,int> index, Board& board, ConfirmedDotData& confirmedDotData, BlockRangeData& blockRangeData, HeuristicTechnique& heuristicTechnique, mutex& confirmedDotDataLock)
 {
     ConfirmedDotData absurdityConfirmedDotData;
     BlockRangeData absurdityBlockRangeData;
@@ -51,7 +52,9 @@ void absurdityCheckWorker(AbsurdityTechnique* delegate, pair<int,int> index, Boa
 
     if(!delegate->check_isAssumptionValid(index, board, absurdityConfirmedDotData, absurdityBlockRangeData, absurdityHeuristicTechnique))
     {
+        confirmedDotDataLock.lock();
         confirmedDotData.set_isBlankConfirmed(index.first, index.second, true);
+        confirmedDotDataLock.unlock();
         return;
     }
 
@@ -62,7 +65,9 @@ void absurdityCheckWorker(AbsurdityTechnique* delegate, pair<int,int> index, Boa
 
     if(!delegate->check_isAssumptionValid(index, board, absurdityConfirmedDotData, absurdityBlockRangeData, absurdityHeuristicTechnique))
     {
+        confirmedDotDataLock.lock();
         confirmedDotData.set_isSetConfirmed(index.first, index.second, true);
+        confirmedDotDataLock.unlock();
         return;
     }
 }
@@ -72,6 +77,7 @@ void AbsurdityTechnique::adopt_absurdityTechnique(Board& board, ConfirmedDotData
     set_techniqueAdoptionPriorityArray(confirmedDotData);
     int numOfThread = thread::hardware_concurrency();
     vector<thread> threads;
+    mutex confirmedDotDataLock;
     
     for(int i = 0; i < techniqueAdoptionPriorityArray.size(); i += numOfThread)
     {
@@ -82,7 +88,7 @@ void AbsurdityTechnique::adopt_absurdityTechnique(Board& board, ConfirmedDotData
             {
                 break;
             }
-            threads.push_back(thread(absurdityCheckWorker, this, techniqueAdoptionPriorityArray[i+j].first, ref(board), ref(confirmedDotData), ref(blockRangeData), ref(heuristicTechnique)));
+            threads.push_back(thread(absurdityCheckWorker, this, techniqueAdoptionPriorityArray[i+j].first, ref(board), ref(confirmedDotData), ref(blockRangeData), ref(heuristicTechnique), ref(confirmedDotDataLock)));
         }
         for(int j = 0; j < threads.size(); j++)
         {
