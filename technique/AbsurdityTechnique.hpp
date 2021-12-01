@@ -92,6 +92,7 @@ void AbsurdityTechnique::adopt_absurdityTechnique(Board& board, ConfirmedDotData
         {
             break;
         }
+        threads.clear();
     }
 }
 
