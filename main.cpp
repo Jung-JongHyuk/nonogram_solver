@@ -2,9 +2,9 @@
 #include <fstream>
 #include <string>
 #include <ctime>
-#include "data_structure/Board.hpp"
-#include "PuzzleSolver.hpp"
-#include "BoardViewer.hpp"
+#include "data_structure/Board.h"
+#include "PuzzleSolver.h"
+#include "BoardViewer.h"
 using namespace std;
 
 int main(int argc, char* argv[])

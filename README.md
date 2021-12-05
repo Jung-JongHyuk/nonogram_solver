@@ -9,10 +9,7 @@ No external library was used in this project except STL. So there is no prerequs
 
 # Usage
 1. clone this project
-2. compile code
-    ~~~
-    g++ main.cpp -std=c++14 -o solver
-    ~~~ 
+2. compile code via IDE(tested in Xcode)
 3. make nonogram puzzle data to solve as txt file  
    puzzle data must be following format
     ~~~
