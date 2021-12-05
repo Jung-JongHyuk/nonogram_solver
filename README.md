@@ -19,9 +19,6 @@ No external library was used in this project except STL. So there is no prerequs
     (number of hint in col: hints)...
     ~~~
 4. run program
-    ~~~
-    ./solver puzzle.txt
-    ~~~
 5. program will solves puzzle and show result to console
     ![running](https://user-images.githubusercontent.com/66899806/135102274-509833c1-341b-45fc-be5d-4a5410640e71.gif)
 
